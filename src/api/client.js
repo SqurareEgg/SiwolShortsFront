@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // src/api/client.js
-const API_BASE_URL = process.env.REACT_APP_API_URL || "https://short-community-backend-latest-966651362826.asia-northeast3.run.app/api";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

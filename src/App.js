@@ -4,17 +4,48 @@ import { StoryGenerator } from './components/StoryGenerator';
 import { PostList } from './components/PostList';
 import { ContentViewer } from './components/ContentViewer';
 import { ChatHistory } from './components/ChatHistory';
+import { UserMenu } from './components/UserMenu';
+import { LoginModal } from './components/LoginModal';
+import { useEffect } from 'react';
+import { authApi } from './api/auth';
 import { ChevronLeft, ChevronRight, MessageSquare, PenTool } from 'lucide-react';
 
 function App() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [storyText, setStoryText] = useState('');
   const [isSidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'story'
+  const [activeTab, setActiveTab] = useState('chat');
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+
+
+  const [user, setUser] = useState(() => {
+  const savedUser = localStorage.getItem('user');
+  return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const currentUser = await authApi.getCurrentUser();
+      if (!currentUser) {
+        setUser(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    };
+
+    if (user) {
+      checkAuth();
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    await authApi.logout();
+    setUser(null);
+  };
 
   const handleTextExtracted = (text) => {
     setStoryText(prev => prev ? `${prev}\n\n${text}` : text);
-    setActiveTab('story'); // OCR 결과가 추출되면 스토리 탭으로 전환
+    setActiveTab('story');
   };
 
   const toggleSidebar = () => {
@@ -78,8 +109,13 @@ function App() {
       <div className="flex-1 flex flex-col">
         {/* 헤더 */}
         <header className="bg-gray-800 border-b border-gray-700">
-          <div className="max-w-[1800px] mx-auto px-4">
+          <div className="max-w-[1800px] mx-auto px-4 flex justify-between items-center">
             <h1 className="text-3xl font-bold py-4 text-white">커뮤니티 게시판</h1>
+              <UserMenu
+                user={user}
+                onLogin={() => setLoginModalOpen(true)}
+                onLogout={handleLogout}
+              />
           </div>
         </header>
 
@@ -91,6 +127,13 @@ function App() {
           </div>
         </main>
       </div>
+
+      {/* 로그인 모달 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onLogin={setUser}
+      />
     </div>
   );
 }
