@@ -93,39 +93,36 @@ export const ChatHistory = () => {
 
 // 채팅 메시지 컴포넌트
 export const ChatMessages = ({ chatId }) => {
-  const [chatList] = useRecoilState(chatListState);
-  const chat = chatList.find(c => c.id === chatId);
+  const [chatList, setChatList] = useRecoilState(chatListState);
 
-  if (!chat) return null;
+  useEffect(() => {
+    const fetchChatMessages = async () => {
+      if (chatId) {
+        try {
+          const response = await api.get(`/chat/${chatId}/messages`);
+          if (response.data.success) {
+            setChatList(response.data.messages);
+          }
+        } catch (err) {
+          console.error('Failed to fetch chat messages:', err);
+        }
+      }
+    };
+
+    fetchChatMessages();
+  }, [chatId, setChatList]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {chat.messages.map((message, index) => (
-        <div
-          key={index}
-          className={`flex items-start gap-3 ${
-            message.role === 'user' ? 'justify-end' : 'justify-start'
-          }`}
-        >
-          {message.role === 'assistant' && (
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-              <Bot size={16} className="text-white" />
-            </div>
-          )}
-          <div
-            className={`max-w-[80%] rounded-lg p-3 ${
-              message.role === 'user'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-white'
-            }`}
-          >
+    <div className="flex flex-col space-y-4 p-4">
+      {chatList.map((message, index) => (
+        <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div className={`max-w-[80%] rounded-lg p-3 ${
+            message.type === 'user' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-700 text-white'
+          }`}>
             <p className="text-sm">{message.content}</p>
           </div>
-          {message.role === 'user' && (
-            <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center">
-              <User size={16} className="text-white" />
-            </div>
-          )}
         </div>
       ))}
     </div>

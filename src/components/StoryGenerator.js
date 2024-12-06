@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { storyGeneratorState, chatHistoryState } from '../recoil/atoms';
 import { MessageSquare } from 'lucide-react';
+import { userState } from '../recoil/atoms';
 
 export const StoryGenerator = () => {
+  const [user] = useRecoilState(userState);
   const navigate = useNavigate();
   const [storyState, setStoryState] = useRecoilState(storyGeneratorState);
   const [, setChatHistory] = useRecoilState(chatHistoryState);
@@ -131,11 +133,13 @@ export const StoryGenerator = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={handleChatEdit}
-                  disabled={!generatedChatId}
-                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded text-sm hover:bg-purple-700 flex items-center justify-center gap-2 disabled:bg-gray-500"
+                  disabled={!generatedChatId || !user}  // user 상태 확인
+                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded text-sm hover:bg-purple-700
+                            flex items-center justify-center gap-2 disabled:bg-gray-500"
+                  title={!user ? "로그인이 필요합니다" : ""}  // 툴팁 추가
                 >
                   <MessageSquare size={16} />
-                  채팅으로 수정하기
+                  {user ? "채팅으로 수정하기" : "로그인하여 수정하기"}
                 </button>
                 <button
                   onClick={handleReset}

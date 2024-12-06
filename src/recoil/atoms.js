@@ -68,3 +68,11 @@ export const currentChatState = atom({
   key: 'currentChatState',
   default: null // 현재 선택된 채팅의 ID
 });
+
+// 사이드바 상태 관리
+export const sidebarState = atom({
+  key: 'sidebarState',
+  default: {
+    chatHistory: []  // 사용자의 이전 대화 기록
+  }
+});

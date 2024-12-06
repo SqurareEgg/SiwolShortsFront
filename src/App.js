@@ -55,21 +55,22 @@ function AppContent() {
 
   return (
     <Routes>
-      <Route
-        path="/mypage"
-        element={user ? <MyPage /> : <Navigate to="/" replace />}
-      />
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<PostsPage />} />
-        <Route path="chat/:chatId" element={<ChatPage />} />
-        <Route path="memes" element={<MemesPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-      </Route>
-      <Route
-        path="*"
-        element={<Navigate to="/" replace />}
-      />
-    </Routes>
+  <Route path="/" element={<MainLayout />}>
+    <Route index element={<PostsPage />} />
+    <Route
+      path="chat/:chatId"
+      element={
+        user ? <ChatPage /> : <Navigate to="/" replace state={{ needLogin: true }} />
+      }
+    />
+    <Route path="memes" element={<MemesPage />} />
+    <Route path="settings" element={<SettingsPage />} />
+  </Route>
+  <Route
+    path="*"
+    element={<Navigate to="/" replace />}
+  />
+</Routes>
   );
 }
 
