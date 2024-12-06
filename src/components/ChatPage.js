@@ -18,7 +18,7 @@ export const ChatPage = () => {
     const fetchChatData = async () => {
       if (chatId) {
         try {
-          const response = await api.get(`/api/chat/${chatId}`);
+          const response = await api.get(`/chat/${chatId}`);
           if (response.data.success) {
             setOriginalText(response.data.chat.response);
           }
@@ -37,23 +37,22 @@ export const ChatPage = () => {
 
     setLoading(true);
     try {
-      const response = await api.post('/api/chat/new', {
+      const response = await api.post('/generate-story', {
         text: input,
         tone: '기본',
-        parent_id: chatId
       });
 
       if (response.data.success) {
         // 새로운 채팅 메시지 추가
         setChatList(prev => [...prev, {
-          id: response.data.chat.id,
+          id: response.data.chat_id,
           message: input,
-          response: response.data.chat.response,
-          created_at: response.data.chat.created_at
+          response: response.data.response,
+          created_at: new Date().toISOString()
         }]);
 
         // 원본 텍스트 업데이트
-        setOriginalText(response.data.chat.response);
+        setOriginalText(response.data.response);
         setInput('');
       }
     } catch (err) {

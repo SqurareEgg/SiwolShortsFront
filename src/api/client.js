@@ -1,20 +1,24 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || "http://localhost:8080/api",
+    baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000/api",
     timeout: 30000,
 });
 
-// 요청 인터셉터 추가
+// 요청 인터셉터
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
+    // URL 중복 방지
+    if (config.url.startsWith('/api/')) {
+        config.url = config.url.substring(4);
+    }
     return config;
 });
 
-// 응답 인터셉터 추가
+// 응답 인터셉터
 api.interceptors.response.use(
     (response) => response,
     (error) => {

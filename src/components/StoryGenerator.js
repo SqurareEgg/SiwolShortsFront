@@ -18,7 +18,7 @@ export const StoryGenerator = () => {
   useEffect(() => {
     const fetchToneStyles = async () => {
       try {
-        const response = await api.get('/tone-styles');
+        const response = await api.get('/api/tone-styles');
         setToneStyles(response.data);
       } catch (err) {
         console.error('Failed to fetch tone styles:', err);
@@ -69,6 +69,8 @@ export const StoryGenerator = () => {
   const handleChatEdit = () => {
     if (generatedChatId) {
       console.log('Navigating to chat:', generatedChatId);
+      // 채팅 페이지로 이동하기 전에 필요한 정보를 저장
+      localStorage.setItem('currentChatText', storyState.result);
       navigate(`/chat/${generatedChatId}`);
     } else {
       console.error('No chat ID available');
