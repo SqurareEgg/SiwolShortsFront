@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { storyGeneratorState, chatHistoryState } from '../recoil/atoms';
+import { MessageSquare } from 'lucide-react';
 
 export const StoryGenerator = () => {
-  // Recoil 상태
+  const navigate = useNavigate();
   const [storyState, setStoryState] = useRecoilState(storyGeneratorState);
-  const [chatHistory, setChatHistory] = useRecoilState(chatHistoryState);
+  const [, setChatHistory] = useRecoilState(chatHistoryState);
 
-  // 로컬 상태
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [toneStyles, setToneStyles] = useState({});
+  const [generatedChatId, setGeneratedChatId] = useState(null);
 
   useEffect(() => {
     const fetchToneStyles = async () => {
@@ -31,10 +33,13 @@ export const StoryGenerator = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Generating story...');
       const response = await api.post('/generate-story', {
         text: storyState.text,
         tone: storyState.tone
       });
+
+      console.log('Response:', response.data);
 
       if (response.data.success) {
         setStoryState(prev => ({
@@ -42,7 +47,9 @@ export const StoryGenerator = () => {
           result: response.data.response
         }));
 
-        // 채팅 히스토리에 추가
+        setGeneratedChatId(response.data.chat_id);
+        console.log('Generated chat ID:', response.data.chat_id);
+
         setChatHistory(prev => [...prev, {
           message: storyState.text,
           response: response.data.response,
@@ -52,37 +59,20 @@ export const StoryGenerator = () => {
         setError(response.data.error || '스토리 생성에 실패했습니다.');
       }
     } catch (err) {
+      console.error('Error generating story:', err);
       setError(`스토리 생성 실패: ${err.response?.data?.detail || err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleModification = async () => {
-    if (!storyState.modificationInput || !storyState.result) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.post('/generate-story', {
-        text: storyState.result,
-        instruction: storyState.modificationInput,
-        continue_thread: true
-      });
-
-      if (response.data.success) {
-        setStoryState(prev => ({
-          ...prev,
-          result: response.data.response,
-          modificationInput: ''
-        }));
-      } else {
-        setError(response.data.error || '수정에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(`수정 실패: ${err.response?.data?.detail || err.message}`);
-    } finally {
-      setLoading(false);
+  const handleChatEdit = () => {
+    if (generatedChatId) {
+      console.log('Navigating to chat:', generatedChatId);
+      navigate(`/chat/${generatedChatId}`);
+    } else {
+      console.error('No chat ID available');
+      setError('채팅 ID를 찾을 수 없습니다.');
     }
   };
 
@@ -94,6 +84,7 @@ export const StoryGenerator = () => {
       modificationInput: ''
     });
     setError(null);
+    setGeneratedChatId(null);
   };
 
   return (
@@ -135,38 +126,28 @@ export const StoryGenerator = () => {
                 rows={8}
                 className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm"
               />
-              <div className="space-y-2">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={storyState.modificationInput}
-                    onChange={(e) => setStoryState(prev => ({ ...prev, modificationInput: e.target.value }))}
-                    placeholder="수정 제안 (예: '더 짧게 줄여줘', '감정을 더 강조해줘')"
-                    className="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm"
-                  />
-                  <button
-                    onClick={handleModification}
-                    disabled={loading || !storyState.modificationInput}
-                    className="px-4 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 disabled:bg-gray-500"
-                  >
-                    적용
-                  </button>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleReset}
-                    className="flex-1 border border-gray-500 text-white py-2 px-4 rounded text-sm hover:bg-gray-600"
-                  >
-                    초기화
-                  </button>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(storyState.result)}
-                    className="flex-1 border border-gray-500 py-2 px-4 rounded text-sm hover:bg-gray-600 text-white"
-                  >
-                    📋 복사
-                  </button>
-                </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleChatEdit}
+                  disabled={!generatedChatId}
+                  className="flex-1 bg-purple-600 text-white py-2 px-4 rounded text-sm hover:bg-purple-700 flex items-center justify-center gap-2 disabled:bg-gray-500"
+                >
+                  <MessageSquare size={16} />
+                  채팅으로 수정하기
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="flex-1 border border-gray-500 text-white py-2 px-4 rounded text-sm hover:bg-gray-600"
+                >
+                  초기화
+                </button>
               </div>
+              <button
+                onClick={() => navigator.clipboard.writeText(storyState.result)}
+                className="w-full border border-gray-500 py-2 px-4 rounded text-sm hover:bg-gray-600 text-white"
+              >
+                📋 복사
+              </button>
             </div>
           )}
         </div>
