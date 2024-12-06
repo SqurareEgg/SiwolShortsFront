@@ -1,91 +1,133 @@
 import React, { useState, useEffect } from 'react';
+import { useRecoilState } from 'recoil';
+import { MessageSquare, Plus, Bot, User, ChevronLeft } from 'lucide-react';
+import { chatListState, currentChatState } from '../recoil/atoms';
 import { api } from '../api/client';
-import { MessageSquare, Bot, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const ChatHistory = () => {
-  const [history, setHistory] = useState([]);
+  const [chatList, setChatList] = useRecoilState(chatListState);
+  const [currentChat, setCurrentChat] = useRecoilState(currentChatState);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchHistory();
-  }, [page]);
+    const fetchChatList = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get('/chats');
+        setChatList(response.data);
+      } catch (err) {
+        console.error('Failed to fetch chat list:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchHistory = async () => {
-    if (!hasMore) return;
+    fetchChatList();
+  }, []);
 
-    setLoading(true);
-    try {
-      const response = await api.get('/chat-history', {
-        params: { page }
-      });
-
-      const newHistory = response.data.items;
-      setHistory(prev => [...prev, ...newHistory]);
-      setHasMore(response.data.has_more);
-    } catch (err) {
-      console.error('Failed to fetch chat history:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadMore = () => {
-    if (!loading && hasMore) {
-      setPage(prev => prev + 1);
-    }
+  const createNewChat = () => {
+    const newChat = {
+      id: Date.now().toString(),
+      title: 'New Chat',
+      messages: []
+    };
+    setChatList(prev => [newChat, ...prev]);
+    setCurrentChat(newChat.id);
+    navigate(`/chat/${newChat.id}`);
   };
 
   return (
-    <div className="bg-gray-700 rounded-lg shadow-lg h-full flex flex-col">
-      <div className="p-4 border-b border-gray-600 flex items-center">
-        <MessageSquare className="w-5 h-5 text-blue-400 mr-2" />
-        <h3 className="text-lg font-semibold text-white">대화 히스토리</h3>
+    <div className="bg-gray-900 text-white h-full flex flex-col">
+      {/* 헤더 */}
+      <div className="p-4 border-b border-gray-700 flex items-center">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 hover:bg-gray-700 rounded-lg mr-2"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <h2 className="text-lg font-semibold">채팅 목록</h2>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {history.map((item, index) => (
-          <div key={index} className="space-y-2">
-            {/* 사용자 메시지 */}
-            <div className="flex items-start space-x-2">
-              <div className="p-2 bg-blue-500 rounded-lg flex-1">
-                <div className="flex items-center mb-1">
-                  <User className="w-4 h-4 text-white mr-2" />
-                  <span className="text-xs text-white/80">사용자</span>
-                </div>
-                <p className="text-sm text-white">{item.message}</p>
-              </div>
-            </div>
+      {/* 새 채팅 버튼 */}
+      <div className="p-4">
+        <button
+          onClick={createNewChat}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+        >
+          <Plus size={20} />
+          <span>새 채팅</span>
+        </button>
+      </div>
 
-            {/* AI 응답 */}
-            <div className="flex items-start space-x-2">
-              <div className="p-2 bg-gray-600 rounded-lg flex-1">
-                <div className="flex items-center mb-1">
-                  <Bot className="w-4 h-4 text-blue-400 mr-2" />
-                  <span className="text-xs text-white/80">AI 어시스턴트</span>
-                </div>
-                <p className="text-sm text-white">{item.response}</p>
-              </div>
-            </div>
+      {/* 채팅 목록 */}
+      <div className="flex-1 overflow-y-auto">
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
           </div>
-        ))}
-
-        {loading && (
-          <div className="flex justify-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
+        ) : (
+          <div className="space-y-1 p-2">
+            {chatList.map((chat) => (
+              <Link
+                key={chat.id}
+                to={`/chat/${chat.id}`}
+                className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
+                  currentChat === chat.id
+                    ? 'bg-gray-700 text-white'
+                    : 'hover:bg-gray-800 text-gray-300'
+                }`}
+              >
+                <MessageSquare size={18} className="mr-3" />
+                <span className="text-sm truncate">{chat.title}</span>
+              </Link>
+            ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+};
 
-        {hasMore && !loading && (
-          <button
-            onClick={loadMore}
-            className="w-full py-2 text-sm text-blue-400 hover:text-blue-300"
+// 채팅 메시지 컴포넌트
+export const ChatMessages = ({ chatId }) => {
+  const [chatList] = useRecoilState(chatListState);
+  const chat = chatList.find(c => c.id === chatId);
+
+  if (!chat) return null;
+
+  return (
+    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {chat.messages.map((message, index) => (
+        <div
+          key={index}
+          className={`flex items-start gap-3 ${
+            message.role === 'user' ? 'justify-end' : 'justify-start'
+          }`}
+        >
+          {message.role === 'assistant' && (
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+              <Bot size={16} className="text-white" />
+            </div>
+          )}
+          <div
+            className={`max-w-[80%] rounded-lg p-3 ${
+              message.role === 'user'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-white'
+            }`}
           >
-            이전 대화 더 보기
-          </button>
-        )}
-      </div>
+            <p className="text-sm">{message.content}</p>
+          </div>
+          {message.role === 'user' && (
+            <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center">
+              <User size={16} className="text-white" />
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

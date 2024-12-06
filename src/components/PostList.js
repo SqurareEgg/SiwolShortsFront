@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../api/client';
-import { Pagination } from './Pagination';
+import { useRecoilState } from 'recoil';
 import { Search } from 'lucide-react';
+import { api } from '../api/client';
+import {
+  postsState,
+  selectedPostState,
+  currentCategoryState,
+  searchQueryState,
+  postsPageState
+} from '../recoil/atoms';
+import { Pagination } from './Pagination';
 
-export const PostList = ({ onSelectPost }) => {
-  const [categories, setCategories] = useState([]);
-  const [currentCategory, setCurrentCategory] = useState('');
-  const [posts, setPosts] = useState([]);
+export const PostList = () => {
+  // Recoil 상태
+  const [posts, setPosts] = useRecoilState(postsState);
+  const [currentCategory, setCurrentCategory] = useRecoilState(currentCategoryState);
+  const [searchQuery, setSearchQuery] = useRecoilState(searchQueryState);
+  const [page, setPage] = useRecoilState(postsPageState);
+  const [, setSelectedPost] = useRecoilState(selectedPostState);
+
+  // 로컬 상태
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [categories, setCategories] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
 
   // 카테고리 목록 가져오기
@@ -19,7 +31,7 @@ export const PostList = ({ onSelectPost }) => {
       try {
         const response = await api.get('/categories');
         setCategories(response.data);
-        if (response.data.length > 0) {
+        if (response.data.length > 0 && !currentCategory) {
           setCurrentCategory(response.data[0]);
         }
       } catch (err) {
@@ -40,7 +52,7 @@ export const PostList = ({ onSelectPost }) => {
         const params = {
           category: currentCategory,
           page,
-          search: activeSearch // 실제 검색 쿼리 사용
+          search: activeSearch
         };
 
         const response = await api.get('/posts', { params });
@@ -54,20 +66,18 @@ export const PostList = ({ onSelectPost }) => {
     };
 
     fetchPosts();
-  }, [currentCategory, page, activeSearch]); // activeSearch를 의존성으로 사용
+  }, [currentCategory, page, activeSearch]);
 
-  // 카테고리 변경 핸들러
   const handleCategoryChange = (e) => {
     setCurrentCategory(e.target.value);
     setPage(0);
-    setSearchQuery(''); // 카테고리 변경 시 검색어 초기화
-    setActiveSearch(''); // 활성 검색어도 초기화
+    setSearchQuery('');
+    setActiveSearch('');
   };
 
-  // 검색 핸들러
   const handleSearch = (e) => {
     e.preventDefault();
-    setActiveSearch(searchQuery); // 검색 버튼 클릭 시에만 검색어 적용
+    setActiveSearch(searchQuery);
     setPage(0);
   };
 
@@ -122,7 +132,7 @@ export const PostList = ({ onSelectPost }) => {
                 posts.map((post) => (
                   <button
                     key={post.id}
-                    onClick={() => onSelectPost(post)}
+                    onClick={() => setSelectedPost(post)}
                     className="w-full p-3 bg-gray-600 rounded-lg hover:bg-gray-500
                              transition-colors duration-200 text-left"
                   >

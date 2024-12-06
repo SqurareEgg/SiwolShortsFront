@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useRecoilState } from 'recoil';
 import { api } from '../api/client';
+import { storyGeneratorState } from '../recoil/atoms';
 
-export const OCRInput = ({ onTextExtracted }) => {
+export const OCRInput = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [storyState, setStoryState] = useRecoilState(storyGeneratorState);
 
   const handleTextExtraction = async () => {
     if (!imageUrl) return;
@@ -18,7 +21,10 @@ export const OCRInput = ({ onTextExtracted }) => {
 
       if (response.data.success) {
         const newText = response.data.text;
-        onTextExtracted(newText); // 부모 컴포넌트로 추출된 텍스트 전달
+        setStoryState(prev => ({
+          ...prev,
+          text: prev.text ? `${prev.text}\n\n${newText}` : newText
+        }));
         setImageUrl('');
       } else {
         setError(response.data.error || '텍스트 추출에 실패했습니다.');
