@@ -14,7 +14,7 @@ export const MainLayout = () => {
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
         <header className="bg-gray-800 border-b border-gray-700 flex-shrink-0">
           <div className="max-w-[1800px] mx-auto px-4 flex justify-between items-center">
-            <h1 className="text-3xl font-bold py-4 text-white">커뮤니티 게시판</h1>
+            <h1 className="text-3xl font-bold py-4 text-white">스토리</h1>
             <UserMenu />
           </div>
         </header>

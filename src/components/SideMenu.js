@@ -10,7 +10,7 @@ export const SideMenu = () => {
   const user = useRecoilValue(userState);
 
   const menuItems = [
-    { icon: <LayoutGrid size={20} />, text: "게시글", path: "/" },
+    { icon: <LayoutGrid size={20} />, text: "게시판", path: "/" },
     { icon: <Image size={20} />, text: "짤 검색", path: "/memes" },
     { icon: <Settings size={20} />, text: "AI 설정", path: "/settings" },
   ];
