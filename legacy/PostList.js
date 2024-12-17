@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import { Search } from 'lucide-react';
-import { api } from '../api/client';
+import { api } from '../src/api/client';
 import {
   postsState,
   selectedPostState,
   currentCategoryState,
   searchQueryState,
   postsPageState
-} from '../recoil/atoms';
-import { Pagination } from './Pagination';
+} from '../src/recoil/atoms';
+import { Pagination } from '../src/components/common/Pagination';
 
 export const PostList = () => {
   // Recoil 상태

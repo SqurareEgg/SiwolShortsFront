@@ -1,9 +1,9 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-import { userState } from '../recoil/atoms';
-import { SideMenu } from './SideMenu';
-import { UserMenu } from './UserMenu';
+import { userState } from '../src/recoil/atoms';
+import { SideMenu } from '../src/components/SideMenu';
+import { UserMenu } from '../src/components/UserMenu';
 
 export const MainLayout = () => {
   const user = useRecoilValue(userState);

@@ -133,7 +133,7 @@ export const StoryGenerator = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={handleChatEdit}
-                  disabled={!generatedChatId || !user}  // user 상태 확인
+                  // disabled={!generatedChatId || !user}  // user 상태 확인
                   className="flex-1 bg-purple-600 text-white py-2 px-4 rounded text-sm hover:bg-purple-700
                             flex items-center justify-center gap-2 disabled:bg-gray-500"
                   title={!user ? "로그인이 필요합니다" : ""}  // 툴팁 추가

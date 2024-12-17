@@ -1,8 +1,9 @@
 import React from 'react';
 import { useRecoilState } from 'recoil';
 import { selectedPostState } from '../recoil/atoms';
-import { PostList } from './PostList';
-import { ContentViewer } from './ContentViewer';
+import PostList from './posts/PostList';
+import {ContentViewer} from './content/ContentViewer';
+// import { ContentViewer }from '../legacy/ContentViewer';
 import { OCRInput } from './OCRInput';
 import { StoryGenerator } from './StoryGenerator';
 

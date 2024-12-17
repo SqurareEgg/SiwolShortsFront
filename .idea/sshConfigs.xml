@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig host="34.69.22.176" id="acc71124-f32c-4390-afe3-49b0be964661" keyPath="C:\Users\WD\.ssh\my-gcp-key" port="22" nameFormat="DESCRIPTIVE" username="wd" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>

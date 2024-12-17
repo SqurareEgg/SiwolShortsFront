@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import { userState, loginModalState } from './recoil/atoms';
-import { MainLayout } from './components/MainLayout';
+import MainLayout from './components/layout/MainLayout';
 import { PostsPage } from './components/PostsPage';
 import { ChatPage } from './components/ChatPage';
-import { MemesPage } from './components/MemesPage';
+import MemesPage from './components/MemesPage';
 import { SettingsPage } from './components/SettingsPage';
-import { LoginModal } from './components/LoginModal';
+import LoginModal from './components/LoginModal';
 
 function AppContent() {
   const [user, setUser] = useRecoilState(userState);
