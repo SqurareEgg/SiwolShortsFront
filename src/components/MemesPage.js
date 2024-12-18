@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from "../api/client";
 import { X } from "lucide-react";
 
@@ -116,17 +116,48 @@ function MemesPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
 
-  useEffect(() => {
-    fetchImages();
-  }, []);
+  const observer = useRef();
+  const lastImageRef = useCallback(node => {
+    if (isLoading) return;
 
-  const fetchImages = async (search = '') => {
+    if (observer.current) {
+      observer.current.disconnect();
+    }
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prev => prev + 1);
+      }
+    });
+
+    if (node) {
+      observer.current.observe(node);
+    }
+  }, [isLoading, hasMore]);
+
+  const fetchImages = async (search = '', pageNum = 1, append = false) => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get(`/api/memes?search=${search}`);
-      setImages(response.data);
+
+      const limit = 30;
+      const response = await api.get(`/memes?search=${search}&page=${pageNum}&limit=${limit}`);
+
+      const newImages = response.data;
+
+      if (append) {
+        setImages(prev => [...prev, ...newImages]);
+      } else {
+        setImages(newImages);
+        setPage(1);
+      }
+
+      setHasMore(newImages.length === limit);
+      setInitialLoad(false);
     } catch (err) {
       setError('이미지를 불러오는데 실패했습니다.');
       console.error('Error fetching images:', err);
@@ -135,9 +166,19 @@ function MemesPage() {
     }
   };
 
+  useEffect(() => {
+    fetchImages('', 1, false);
+  }, []);
+
+  useEffect(() => {
+    if (page > 1) {
+      fetchImages(searchTerm, page, true);
+    }
+  }, [page]);
+
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchImages(searchTerm);
+    fetchImages(searchTerm, 1, false);
   };
 
   const handleUpload = async (e) => {
@@ -150,17 +191,17 @@ function MemesPage() {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('tags', JSON.stringify(tags));
+    formData.append('tags', tags.join(', '));
 
     try {
       setIsLoading(true);
       setError(null);
-      await api.post('/api/memes/upload', formData, {
+      await api.post('/memes/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      await fetchImages();
+      await fetchImages(searchTerm, 1, false);
       setFile(null);
       setTags([]);
     } catch (err) {
@@ -171,7 +212,6 @@ function MemesPage() {
     }
   };
 
-  // ESC 키로 모달 닫기
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
@@ -189,26 +229,6 @@ function MemesPage() {
           {error}
         </div>
       )}
-
-      <div className="mb-8">
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="태그로 검색하기..."
-            className="flex-1 p-2 border rounded"
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
-            disabled={isLoading}
-          >
-            {isLoading ? '검색중...' : '검색'}
-          </button>
-        </form>
-      </div>
 
       <div className="mb-8">
         <form onSubmit={handleUpload} className="flex flex-col gap-2">
@@ -230,39 +250,55 @@ function MemesPage() {
         </form>
       </div>
 
-      {isLoading ? (
+      {initialLoad ? (
         <div className="text-center">로딩중...</div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((image) => (
-            <div
-              key={image.id}
-              className="border rounded p-2 cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setSelectedImage(image)}
-            >
-              <img
-                src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/images/${image.filename}`}
-                alt={image.tags.join(', ')}
-                className="w-full h-48 object-cover"
-              />
-              <div className="mt-2 flex flex-wrap gap-1">
-                {image.tags.slice(0, 3).map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-sm"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-                {image.tags.length > 3 && (
-                  <span className="px-2 py-0.5 text-gray-500 text-sm">
-                    +{image.tags.length - 3}
-                  </span>
-                )}
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {images.map((image, index) => (
+              <div
+                key={image.id}
+                ref={index === images.length - 1 ? lastImageRef : null}
+                className="border rounded p-2 cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setSelectedImage(image)}
+              >
+                <img
+                  src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/images/${image.filename}`}
+                  alt={image.tags.join(', ')}
+                  className="w-full h-48 object-cover"
+                  loading="lazy"
+                />
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {image.tags.slice(0, 3).map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                  {image.tags.length > 3 && (
+                    <span className="px-2 py-0.5 text-gray-500 text-sm">
+                      +{image.tags.length - 3}
+                    </span>
+                  )}
+                </div>
               </div>
+            ))}
+          </div>
+
+          {isLoading && page > 1 && (
+            <div className="text-center py-4">
+              추가 이미지 로딩중...
             </div>
-          ))}
-        </div>
+          )}
+
+          {!hasMore && !isLoading && images.length > 0 && (
+            <div className="text-center py-4 text-gray-500">
+              모든 이미지를 불러왔습니다.
+            </div>
+          )}
+        </>
       )}
 
       <ImageModal
