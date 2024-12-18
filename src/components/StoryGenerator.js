@@ -20,7 +20,7 @@ export const StoryGenerator = () => {
   useEffect(() => {
     const fetchToneStyles = async () => {
       try {
-        const response = await api.get('/api/tone-styles');
+        const response = await api.get('/tone-styles');
         setToneStyles(response.data);
       } catch (err) {
         console.error('Failed to fetch tone styles:', err);

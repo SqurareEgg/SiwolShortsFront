@@ -5,15 +5,11 @@ const api = axios.create({
     timeout: 300000,
 });
 
-// 요청 인터셉터
+// 요청 인터셉터 - 토큰만 처리
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-    }
-    // URL 중복 방지
-    if (config.url.startsWith('/api/')) {
-        config.url = config.url.substring(4);
     }
     return config;
 });

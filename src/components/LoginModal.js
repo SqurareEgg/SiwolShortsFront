@@ -8,9 +8,9 @@ import { useAuthForm } from '../hooks/useAuthForm';
 const LoginModal = () => {
   const [isOpen, setIsOpen] = useRecoilState(loginModalState);
   const [isRegister, setIsRegister] = useState(false);
+  const [error, setError] = useState(null);  // error state 추가
   const {
     formData,
-    error,
     loading,
     handleInputChange,
     handleSubmit,
@@ -49,6 +49,7 @@ const LoginModal = () => {
         onSubmit={handleFormSubmit}
         onChange={handleInputChange}
         onToggleType={toggleAuthType}
+        setError={setError}  // setError 함수 전달
       />
     </Modal>
   );
