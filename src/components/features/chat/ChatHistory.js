@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import { MessageSquare, Plus, Bot, User, ChevronLeft } from 'lucide-react';
-import { chatListState, currentChatState } from '../recoil/atoms';
-import { api } from '../api/client';
+import { chatListState, currentChatState } from '../../../recoil/atoms';
+import { api } from '../../../api/client';
 import { Link, useNavigate } from 'react-router-dom';
 
 export const ChatHistory = () => {
@@ -15,7 +15,7 @@ export const ChatHistory = () => {
     const fetchChatList = async () => {
       setLoading(true);
       try {
-        const response = await api.get('/chats');
+        const response = await api.get('/ai/chat/history');
         setChatList(response.data);
       } catch (err) {
         console.error('Failed to fetch chat list:', err);
@@ -35,7 +35,7 @@ export const ChatHistory = () => {
     };
     setChatList(prev => [newChat, ...prev]);
     setCurrentChat(newChat.id);
-    navigate(`/chat/${newChat.id}`);
+    navigate(`/ai/chat/${newChat.id}`);
   };
 
   return (
@@ -99,7 +99,7 @@ export const ChatMessages = ({ chatId }) => {
     const fetchChatMessages = async () => {
       if (chatId) {
         try {
-          const response = await api.get(`/chat/${chatId}/messages`);
+          const response = await api.get(`/ai/chat/${chatId}/messages`);
           if (response.data.success) {
             setChatList(response.data.messages);
           }

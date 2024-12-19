@@ -4,10 +4,10 @@ import { RecoilRoot, useRecoilState } from 'recoil';
 import { userState, loginModalState } from './recoil/atoms';
 import MainLayout from './components/layout/MainLayout';
 import { PostsPage } from './components/PostsPage';
-import { ChatPage } from './components/ChatPage';
+import { ChatPage } from './components/features/chat/ChatPage';
 import MemesPage from './components/MemesPage';
 import { SettingsPage } from './components/SettingsPage';
-import LoginModal from './components/LoginModal';
+import LoginModal from './components/features/auth/LoginModal';
 
 function AppContent() {
   const [user, setUser] = useRecoilState(userState);
@@ -69,7 +69,7 @@ function AppContent() {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<PostsPage />} />
         <Route
-          path="chat/:chatId"
+          path="/ai/chat/:chatId"
           element={
             user ? <ChatPage /> : <Navigate to="/" replace state={{ needLogin: true }} />
           }

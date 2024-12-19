@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { loginModalState } from '../recoil/atoms';
-import Modal from './common/Modal';
+import { loginModalState } from '../../../recoil/atoms';
+import Modal from '../../common/Modal';
 import AuthForm from './AuthForm';
-import { useAuthForm } from '../hooks/useAuthForm';
+import { useAuthForm } from '../../../hooks/useAuthForm';
 
 const LoginModal = () => {
   const [isOpen, setIsOpen] = useRecoilState(loginModalState);

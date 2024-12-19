@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { api } from '../api/client';
-import { storyGeneratorState } from '../recoil/atoms';
+import { api } from '../../../api/client';
+import { storyGeneratorState } from '../../../recoil/atoms';
 
 export const OCRInput = () => {
   const [imageUrl, setImageUrl] = useState('');

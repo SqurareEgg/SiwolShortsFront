@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
-import { api } from '../../api/client';
+import { api } from '../../../api/client';
 import {
   postsState,
   selectedPostState,
   currentCategoryState,
   searchQueryState,
   postsPageState
-} from '../../recoil/atoms';
+} from '../../../recoil/atoms';
 import PostItem from './PostItem';
 import SearchBar from './SearchBar';
 import CategorySelect from './CategorySelect';
-import { Pagination } from '../common/Pagination';
+import { Pagination } from '../../common/Pagination';
 
 const PostList = () => {
   const [posts, setPosts] = useRecoilState(postsState);

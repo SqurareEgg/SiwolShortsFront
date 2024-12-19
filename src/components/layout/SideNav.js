@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { LayoutGrid, Image, Settings, MessageSquare } from 'lucide-react';
 import { userState } from '../../recoil/atoms';
-import { ChatHistory } from '../ChatHistory';
+import { ChatHistory } from '../features/chat/ChatHistory';
 
 const NavItem = ({ icon, text, to }) => (
   <NavLink
