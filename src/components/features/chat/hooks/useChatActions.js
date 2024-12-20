@@ -9,55 +9,26 @@ export const useChatActions = () => {
   const [chatList, setChatList] = useRecoilState(chatListState);
 
   const handleSplitParagraphs = async (text) => {
-    if (!text || typeof text !== 'string' || !text.trim()) {
-    setResponse({
-      type: 'error',
-      content: 'Invalid input: Text must be a non-empty string.'
-    });
-    return;
-  }
+    if (!text) return;
+
     setLoading(true);
     try {
-      const response = await api.post('/ai/dalle/parse', { text });
+      const response = await api.post('/ai/dalle/parse-and-generate', { text });
+      console.log('DALLE response:', response.data);
+
       if (response.data.success) {
         setResponse({
-          type: 'paragraphs',
-          content: response.data.response
+          type: 'scenes',
+          scenes: response.data.scenes
         });
       } else {
         setResponse({
           type: 'error',
-          content: response.data.error || 'Error: No response data received'
+          content: response.data.error || 'Failed to process text'
         });
       }
     } catch (err) {
-      setResponse({
-        type: 'error',
-        content: 'Error: Failed to get response'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGenerateTags = async (text) => {
-    setLoading(true);
-    try {
-      const response = await api.post('/ai/search/tags', { text });
-
-      // 응답 구조 확인을 위한 로깅 추가
-      console.log('Tags response:', response.data);
-
-      if (response.data.success && response.data.scenes) {
-        setResponse(response.data);
-      } else {
-        setResponse({
-          type: 'error',
-          content: response.data.error || '응답을 생성하지 못했습니다.'
-        });
-      }
-    } catch (err) {
-      console.error('Failed to generate tags:', err);
+      console.error('Failed to generate content:', err);
       setResponse({
         type: 'error',
         content: 'Failed to get response'
@@ -66,6 +37,42 @@ export const useChatActions = () => {
       setLoading(false);
     }
   };
+
+  const handleGenerateTags = async (text) => {
+  setLoading(true);
+  try {
+    const response = await api.post('/ai/search/tags', {
+      text: text
+    });
+    console.log('Generated tags response:', response.data); // 디버깅용
+
+    if (response.data.success && response.data.scenes) {
+      // scenes 데이터 구조 맞추기
+      setResponse({
+        type: 'scenes',
+        scenes: response.data.scenes.map(scene => ({
+          scene_number: scene.scene_number,
+          search_tags: scene.search_tags,
+          narration: scene.narration,
+          images: Array.isArray(scene.images) ? scene.images : []
+        }))
+      });
+    } else {
+      setResponse({
+        type: 'error',
+        content: response.data.error || '응답을 생성하지 못했습니다.'
+      });
+    }
+  } catch (err) {
+    console.error('Failed to generate tags:', err);
+    setResponse({
+      type: 'error',
+      content: 'Failed to get response'
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSubmit = async (text, tone = '기본') => {
     if (!text.trim() || loading) return;
@@ -96,6 +103,7 @@ export const useChatActions = () => {
   return {
     loading,
     response,
+    setResponse,
     handleSplitParagraphs,
     handleGenerateTags,
     handleSubmit
