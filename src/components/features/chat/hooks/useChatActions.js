@@ -9,6 +9,13 @@ export const useChatActions = () => {
   const [chatList, setChatList] = useRecoilState(chatListState);
 
   const handleSplitParagraphs = async (text) => {
+    if (!text || typeof text !== 'string' || !text.trim()) {
+    setResponse({
+      type: 'error',
+      content: 'Invalid input: Text must be a non-empty string.'
+    });
+    return;
+  }
     setLoading(true);
     try {
       const response = await api.post('/ai/dalle/parse', { text });

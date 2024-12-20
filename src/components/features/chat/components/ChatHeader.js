@@ -17,7 +17,7 @@ export const ChatHeader = ({
                   disabled:bg-gray-600 flex items-center gap-2"
       >
         <Wand2 size={16} />
-        문단 나누기
+        이미지 생성하기
       </button>
       <button
         onClick={onGenerateTags}
@@ -26,7 +26,7 @@ export const ChatHeader = ({
                   disabled:bg-gray-600 flex items-center gap-2"
       >
         <Search size={16} />
-        짤방 태그 생성
+        짤방 생성
       </button>
     </div>
   </div>
