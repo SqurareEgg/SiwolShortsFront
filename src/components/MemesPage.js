@@ -210,7 +210,8 @@ function MemesPage() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchImages(searchTerm, 1, false);
+    const searchValue = e.target.search.value; // form의 input value 직접 접근
+    fetchImages(searchValue, 1, false);
   };
 
   const handleUpload = async (e) => {
@@ -265,9 +266,8 @@ function MemesPage() {
       <div className="mb-8">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
+            name="search"
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="태그로 검색하기..."
             className="flex-1 p-2 border rounded"
             disabled={isLoading}
