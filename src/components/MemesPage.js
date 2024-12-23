@@ -80,9 +80,7 @@ const downloadImage = async (image) => {
     const tags = image.tags.join('_');
     const downloadFileName = `${tags}.${extension}`;
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/images/${image.filename}`
-    );
+    const response = await fetch(image.url);
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -122,7 +120,7 @@ function ImageModal({ image, isOpen, onClose }) {
         </div>
 
         <img
-          src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/images/${image.filename}`}
+          src={image.url}
           alt={image.tags.join(', ')}
           className="w-full h-auto object-contain max-h-[70vh]"
         />
@@ -318,7 +316,7 @@ function MemesPage() {
                   onClick={() => setSelectedImage(image)}
                 >
                   <img
-                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/images/${image.filename}`}
+                    src={image.url}
                     alt={image.tags.join(', ')}
                     className="w-full h-48 object-cover"
                     loading="lazy"
