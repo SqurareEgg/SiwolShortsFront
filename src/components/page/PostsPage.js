@@ -1,11 +1,11 @@
 import React from 'react';
 import { useRecoilState } from 'recoil';
-import { selectedPostState } from '../recoil/atoms';
-import PostList from './features/posts/PostList';
-import {ContentViewer} from './features/content/ContentViewer';
+import { selectedPostState } from '../../recoil/atoms';
+import PostList from '../features/posts/PostList';
+import {ContentViewer} from '../features/content/ContentViewer';
 // import { ContentViewer }from '../legacy/ContentViewer';
-import { OCRInput } from './features/ocr/OCRInput';
-import { StoryGenerator } from './features/story/StoryGenerator';
+import { OCRInput } from '../features/ocr/OCRInput';
+import { StoryGenerator } from '../features/story/StoryGenerator';
 
 export const PostsPage = () => {
   const [selectedPost, setSelectedPost] = useRecoilState(selectedPostState);

@@ -3,10 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import { userState, loginModalState } from './recoil/atoms';
 import MainLayout from './components/layout/MainLayout';
-import { PostsPage } from './components/PostsPage';
-import { ChatPage } from './components/features/chat/ChatPage';
-import MemesPage from './components/MemesPage';
-import { SettingsPage } from './components/SettingsPage';
+import { PostsPage } from './components/page/PostsPage';
+import { ChatPage } from './components/page/ChatPage';
+import MemesPage from './components/page/MemesPage';
+import { SettingsPage } from './components/page/SettingsPage';
 import LoginModal from './components/features/auth/LoginModal';
 
 function AppContent() {

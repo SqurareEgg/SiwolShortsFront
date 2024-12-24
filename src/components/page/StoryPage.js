@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
-import { storyGeneratorState, chatHistoryState } from '../recoil/atoms';
-import { OCRInput } from './features/ocr/OCRInput';
-import { StoryGenerator } from './features/story/StoryGenerator';
-import { ChatHistory } from './features/chat/ChatHistory';
+import { storyGeneratorState, chatHistoryState } from '../../recoil/atoms';
+import { OCRInput } from '../features/ocr/OCRInput';
+import { StoryGenerator } from '../features/story/StoryGenerator';
+import { ChatHistory } from '../features/chat/ChatHistory';
 
 export const StoryPage = () => {
   const [storyState, setStoryState] = useRecoilState(storyGeneratorState);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { api } from "../api/client";
+import { api } from "../../api/client";
 import { X } from "lucide-react";
 
 function TagInput({ tags, setTags }) {

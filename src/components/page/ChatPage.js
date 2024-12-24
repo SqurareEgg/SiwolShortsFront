@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { api } from '../../../api/client';
-import { ChatVersion } from './components/ChatVersion';
-import { ChatHeader } from './components/ChatHeader';
-import { ChatResponseArea } from './components/ChatResponseArea';
-import { useChatActions } from './hooks/useChatActions';
+import { api } from '../../api/client';
+import { ChatVersion } from '../features/chat/components/ChatVersion';
+import { ChatHeader } from '../features/chat/components/ChatHeader';
+import { ChatResponseArea } from '../features/chat/components/ChatResponseArea';
+import { useChatActions } from '../features/chat/hooks/useChatActions';
 
 export const ChatPage = () => {
   const { chatId } = useParams();

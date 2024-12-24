@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, MessageSquare, Clock, Edit2, Save, X } from 'lucide-react';
-import { api } from '../api/client';
+import { api } from '../../api/client';
 
 export const MyPage = ({ user }) => {
   const [loading, setLoading] = useState(true);

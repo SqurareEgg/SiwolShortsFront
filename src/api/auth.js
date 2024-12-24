@@ -48,7 +48,7 @@ export const authApi = {
         if (error.response?.status === 422) {
             const validationErrors = error.response.data.detail;
             console.log('Validation errors:', validationErrors);
-            // 상세한 에러 메시지 구성
+            // 상세 에러 메시지 구성
             const errorMessage = Array.isArray(validationErrors)
                 ? validationErrors.map(err => `${err.loc.join('.')}: ${err.msg}`).join('\n')
                 : '입력 정보를 확인해주세요.';
